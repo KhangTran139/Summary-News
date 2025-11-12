@@ -84,3 +84,25 @@ train_df.to_csv("cnn_dailymail/cnn_dailymail/train_clean.csv", index=False)
 val_df.to_csv("cnn_dailymail/cnn_dailymail/val_clean.csv", index=False)
 
 print(" Hoàn tất tiền xử lý dữ liệu!")
+
+# Đọc dữ liệu tập test
+
+test_df = pd.read_csv("cnn_dailymail/cnn_dailymail/test.csv")
+print(test_df.head())
+
+def clean_text(text):
+    text = text.lower()
+    text = re.sub(r'\([^)]*\)', '', text)
+    text = re.sub('"', '', text)
+    text = re.sub(r"'s\b", "", text)
+    text = re.sub("[^a-zA-Z]", " ", text)
+    text = re.sub('[m]{2,}', 'mm', text)
+    text = re.sub(' +', ' ', text)
+    return text.strip()
+
+test_df['clean_article'] = test_df['article'].apply(clean_text)
+
+x_test = test_df['clean_article']
+
+x_test_seq = x_tokenizer.texts_to_sequences(x_test)
+x_test_seq = tf.keras.preprocessing.sequence.pad_sequences(x_test_seq, maxlen=max_text_len, padding='post')
